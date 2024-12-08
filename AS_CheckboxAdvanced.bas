@@ -10,9 +10,17 @@ V1.00
 	-Release
 V1.01
 	-The checkbox is now also toggled when you click on the text
+V1.02
+	-Add Designer Property CheckBox2TextGap - Gap between checkbox and text
+		-Default: 10dip
+V1.03
+	-BugFixes and Improvements
+V1.04 (nicht veröffentlicht)
+	-Add get CheckBoxLabel - The checkbox label
 #End If
 
 #DesignerProperty: Key: CheckBoxWidthHeight, DisplayName: CheckBoxWidthHeight, FieldType: Int, DefaultValue: 24, MinRange: 0
+#DesignerProperty: Key: CheckBox2TextGap, DisplayName: CheckBox2TextGap, FieldType: Int, DefaultValue: 10, MinRange: 0 , Description: Gap between checkbox and text
 #DesignerProperty: Key: CornerRadius, DisplayName: Corner Radius, FieldType: Int, DefaultValue: 5, MinRange: 0
 
 #DesignerProperty: Key: CheckedBackgroundColor, DisplayName: Checked Background Color, FieldType: Color, DefaultValue: 0xFF2D8879 
@@ -35,7 +43,7 @@ Sub Class_Globals
 	Public Tag As Object
 	Private xlbl_CheckBox As B4XView
 	Private xlbl_Text As B4XView
-	Private xpnl_TextClickPanel As B4XView
+	Private xpnl_ClickPanel As B4XView
 	
 	Private m_Icon As String 
 	Private m_isFontAswesome As Boolean = False
@@ -70,12 +78,12 @@ Public Sub DesignerCreateView (Base As Object, Lbl As Label, Props As Map)
 	ini_props(Props)
 	xlbl_CheckBox = CreateLabel("xlbl_CheckBox")
 	xlbl_Text = Lbl
-	xpnl_TextClickPanel = xui.CreatePanel("xpnl_TextClickPanel")
-	xpnl_TextClickPanel.Color = xui.Color_Transparent
+	xpnl_ClickPanel = xui.CreatePanel("xpnl_ClickPanel")
+	xpnl_ClickPanel.Color = xui.Color_Transparent
 	
 	mBase.AddView(xlbl_CheckBox,m_CheckBoxGap,0,0,0)
 	mBase.AddView(xlbl_Text,m_CheckBoxWidthHeight + m_CheckBox2TextGap + xlbl_CheckBox.Left,0,mBase.Width-m_CheckBoxWidthHeight - m_CheckBox2TextGap - xlbl_CheckBox.Left,mBase.Height)
-	mBase.AddView(xpnl_TextClickPanel,xlbl_Text.Left,xlbl_Text.Top,xlbl_Text.Width,xlbl_Text.Height)
+	mBase.AddView(xpnl_ClickPanel,0,0,mBase.Width,mBase.Height)
 	
 	
 	xlbl_CheckBox.Enabled = m_isEnabled
@@ -101,13 +109,14 @@ Private Sub ini_props(Props As Map)
 	m_isChecked = Props.GetDefault("Checked",False)
 	
 	m_CheckBoxWidthHeight = DipToCurrent(Props.Get("CheckBoxWidthHeight"))
+	m_CheckBox2TextGap = DipToCurrent(Props.GetDefault("CheckBox2TextGap",10dip))
 	
 End Sub
 
 Public Sub Base_Resize (Width As Double, Height As Double)
 	xlbl_CheckBox.SetLayoutAnimated(0,m_CheckBoxGap,Height/2 - m_CheckBoxWidthHeight/2,m_CheckBoxWidthHeight,m_CheckBoxWidthHeight)
 	xlbl_Text.SetLayoutAnimated(0,m_CheckBoxWidthHeight + m_CheckBox2TextGap + xlbl_CheckBox.Left,0,mBase.Width-m_CheckBoxWidthHeight - m_CheckBox2TextGap - xlbl_CheckBox.Left,mBase.Height)
-	xpnl_TextClickPanel.SetLayoutAnimated(0,xlbl_Text.Left,xlbl_Text.Top,xlbl_Text.Width,xlbl_Text.Height)
+	xpnl_ClickPanel.SetLayoutAnimated(0,0,0,Width,Height)
 	#If B4J
 	Dim jo As JavaObject = xlbl_CheckBox
 	jo.RunMethod("setMinSize", Array(xlbl_CheckBox.Width/2, xlbl_CheckBox.Height/2))
@@ -219,6 +228,10 @@ Public Sub getTextLabel As B4XView
 	Return xlbl_Text
 End Sub
 
+Public Sub getCheckBoxLabel As B4XView
+	Return xlbl_CheckBox
+End Sub
+
 Public Sub SetIcon(icon As String,isfontawesome As Boolean)
 	m_Icon = icon
 	m_isFontAswesome = isfontawesome
@@ -307,22 +320,14 @@ Public Sub setisFontAswesome(FontAwesome As Boolean)
 End Sub
 
 #If B4J
-Private Sub xpnl_TextClickPanel_MouseClicked (EventData As MouseEvent)
+Private Sub xpnl_ClickPanel_MouseClicked (EventData As MouseEvent)
 	If m_isEnabled = False Then Return
-	If m_isChecked = True Then
-		setChecked(False)
-	Else
-		setChecked(True)
-	End If
+	xlbl_CheckBox_MouseClicked(EventData)
 End Sub
 #Else
-Private Sub xpnl_TextClickPanel_Click
+Private Sub xpnl_ClickPanel_Click
 	If m_isEnabled = False Then Return
-	If m_isChecked = True Then
-		setChecked(False)
-	Else
-		setChecked(True)
-	End If
+	xlbl_CheckBox_Click
 End Sub
 #End If
 

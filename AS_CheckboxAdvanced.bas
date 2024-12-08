@@ -15,20 +15,35 @@ V1.02
 		-Default: 10dip
 V1.03
 	-BugFixes and Improvements
-V1.04 (nicht veröffentlicht)
+V2.00
 	-Add get CheckBoxLabel - The checkbox label
+	-Add Designer Property FillUncheckedBackgroundColor
+	-Add Designer Property UncheckedBackgroundColor
+	-Add Designer Property UncheckedIconColor
+	-Add Designer Property Round
+		-Default: False
+	-Add set Theme
+	-Add get Theme_Dark
+	-Add get Theme_Light
+	-Add Designer Property ThemeChangeTransition
+		-Default: None	
 #End If
 
 #DesignerProperty: Key: CheckBoxWidthHeight, DisplayName: CheckBoxWidthHeight, FieldType: Int, DefaultValue: 24, MinRange: 0
 #DesignerProperty: Key: CheckBox2TextGap, DisplayName: CheckBox2TextGap, FieldType: Int, DefaultValue: 10, MinRange: 0 , Description: Gap between checkbox and text
-#DesignerProperty: Key: CornerRadius, DisplayName: Corner Radius, FieldType: Int, DefaultValue: 5, MinRange: 0
 
-#DesignerProperty: Key: CheckedBackgroundColor, DisplayName: Checked Background Color, FieldType: Color, DefaultValue: 0xFF2D8879 
-#DesignerProperty: Key: DisabledBackgroundColor, DisplayName: Disabled Background Color, FieldType: Color, DefaultValue: 0xFF3C4043
+#DesignerProperty: Key: ThemeChangeTransition, DisplayName: ThemeChangeTransition, FieldType: String, DefaultValue: None, List: None|Fade
+#DesignerProperty: Key: CheckedBackgroundColor, DisplayName: CheckedBackgroundColor, FieldType: Color, DefaultValue: 0xFF131416
 #DesignerProperty: Key: IconColor, DisplayName: Icon Color, FieldType: Color, DefaultValue: 0xFFFFFFFF
+#DesignerProperty: Key: FillUncheckedBackgroundColor, DisplayName: FillUncheckedBackgroundColor, FieldType: Boolean, DefaultValue: False
+#DesignerProperty: Key: UncheckedBackgroundColor, DisplayName: UncheckedBackgroundColor, FieldType: Color, DefaultValue: 0xFF131416
+#DesignerProperty: Key: UncheckedIconColor, DisplayName: UncheckedIconColor, FieldType: Color, DefaultValue: 0x00FFFFFF
+#DesignerProperty: Key: DisabledBackgroundColor, DisplayName: Disabled Background Color, FieldType: Color, DefaultValue: 0xFF3C4043
 #DesignerProperty: Key: DisabledIconColor, DisplayName: Disabled Icon Color, FieldType: Color, DefaultValue: 0x98FFFFFF
 #DesignerProperty: Key: BorderWidth, DisplayName: Border Width, FieldType: Int, DefaultValue: 2, MinRange: 1
-#DesignerProperty: Key: CheckedAnimated, DisplayName: Checked Animated, FieldType: Boolean, DefaultValue: True
+#DesignerProperty: Key: Round, DisplayName: Round, FieldType: Boolean, DefaultValue: False
+#DesignerProperty: Key: CornerRadius, DisplayName: Corner Radius, FieldType: Int, DefaultValue: 5, MinRange: 0
+#DesignerProperty: Key: CheckedAnimated, DisplayName: Checked Animated, FieldType: Boolean, DefaultValue: False
 #DesignerProperty: Key: HapticFeedback, DisplayName: Haptic Feedback, FieldType: Boolean, DefaultValue: True, Description: Whether to make a haptic feedback when the user clicks on the control.
 #DesignerProperty: Key: Checked, DisplayName: Checked, FieldType: Boolean, DefaultValue: False
 #DesignerProperty: Key: Enabled, DisplayName: Enabled, FieldType: Boolean, DefaultValue: True
@@ -45,10 +60,12 @@ Sub Class_Globals
 	Private xlbl_Text As B4XView
 	Private xpnl_ClickPanel As B4XView
 	
-	Private m_Icon As String 
+	Private m_Icon As String
 	Private m_isFontAswesome As Boolean = False
 	Private m_IconColor As Int
 	Private m_CheckedBackgroundColor As Int
+	Private m_UncheckedBackgroundColor As Int
+	Private m_UncheckedIconColor As Int
 	Private m_DisabledColor As Int
 	Private m_DisabledIconColor As Int
 	Private m_isChecked As Boolean = False
@@ -58,10 +75,77 @@ Sub Class_Globals
 	Private m_isHaptic As Boolean'Ignore
 	Private m_isEvent As Boolean = True
 	Private m_isEnabled As Boolean
+	Private m_isRound As Boolean
+	Private m_isFillUncheckedBackgroundColor As Boolean
+	Private m_ThemeChangeTransition As String
 	
 	Private m_CheckBoxWidthHeight As Float
 	Private m_CheckBox2TextGap As Float = 10dip
 	Private m_CheckBoxGap As Float = 5dip
+	
+	Private xiv_RefreshImage As B4XView
+	
+	Type AS_CheckBoxAdvanced_Theme(TextColor As Int,CheckedBackgroundColor As Int,IconColor As Int,UncheckedBackgroundColor As Int,UncheckedIconColor As Int,DisabledBackgroundColor As Int,DisabledIconColor As Int)
+	
+End Sub
+
+Public Sub setTheme(Theme As AS_CheckBoxAdvanced_Theme)
+	
+	xiv_RefreshImage.SetBitmap(mBase.Snapshot)
+	xiv_RefreshImage.SetVisibleAnimated(0,True)
+
+	m_CheckedBackgroundColor = Theme.CheckedBackgroundColor
+	m_IconColor = Theme.IconColor
+	m_UncheckedBackgroundColor = Theme.UncheckedBackgroundColor
+	m_UncheckedIconColor = Theme.UncheckedIconColor
+	m_DisabledColor = Theme.DisabledBackgroundColor
+	m_DisabledIconColor = Theme.DisabledIconColor
+	xlbl_Text.TextColor = Theme.TextColor
+
+	
+	Sleep(0)
+	
+	UpdateStyle
+
+	Select m_ThemeChangeTransition
+		Case "None"
+			xiv_RefreshImage.SetVisibleAnimated(0,False)
+		Case "Fade"
+			Sleep(250)
+			xiv_RefreshImage.SetVisibleAnimated(250,False)
+	End Select
+	
+End Sub
+
+Public Sub getTheme_Dark As AS_CheckBoxAdvanced_Theme
+	
+	Dim Theme As AS_CheckBoxAdvanced_Theme
+	Theme.Initialize
+	Theme.CheckedBackgroundColor = xui.Color_White
+	Theme.IconColor = xui.Color_Black
+	Theme.UncheckedBackgroundColor = xui.Color_White
+	Theme.UncheckedIconColor = xui.Color_ARGB(0,255,255,255)
+	Theme.DisabledBackgroundColor = xui.Color_ARGB(255,60, 64, 67)
+	Theme.DisabledIconColor = xui.Color_ARGB(152,255,255,255)
+	Theme.TextColor = xui.Color_White
+	
+	Return Theme
+	
+End Sub
+
+Public Sub getTheme_Light As AS_CheckBoxAdvanced_Theme
+	
+	Dim Theme As AS_CheckBoxAdvanced_Theme
+	Theme.Initialize
+	Theme.CheckedBackgroundColor = xui.Color_ARGB(255,19, 20, 22)
+	Theme.IconColor = xui.Color_White
+	Theme.UncheckedBackgroundColor = xui.Color_ARGB(255,19, 20, 22)
+	Theme.UncheckedIconColor = xui.Color_ARGB(0,255,255,255)
+	Theme.DisabledBackgroundColor = xui.Color_ARGB(255,60, 64, 67)
+	Theme.DisabledIconColor = xui.Color_ARGB(152,255,255,255)
+	Theme.TextColor = xui.Color_Black
+	
+	Return Theme
 	
 End Sub
 
@@ -85,19 +169,23 @@ Public Sub DesignerCreateView (Base As Object, Lbl As Label, Props As Map)
 	mBase.AddView(xlbl_Text,m_CheckBoxWidthHeight + m_CheckBox2TextGap + xlbl_CheckBox.Left,0,mBase.Width-m_CheckBoxWidthHeight - m_CheckBox2TextGap - xlbl_CheckBox.Left,mBase.Height)
 	mBase.AddView(xpnl_ClickPanel,0,0,mBase.Width,mBase.Height)
 	
-	
 	xlbl_CheckBox.Enabled = m_isEnabled
 	
 	m_Icon = Chr(0xE5CA)
+	xlbl_CheckBox.Text = m_Icon
+	
+	xiv_RefreshImage = CreateImageView("")
+	xiv_RefreshImage.Visible = False
+	mBase.AddView(xiv_RefreshImage,0,0,mBase.Width,mBase.Height)
 	
 	Base_Resize(mBase.Width,mBase.Height)
 	
-	Check(m_isChecked,False,False)
+	Check(False,False)
 End Sub
 
 Private Sub ini_props(Props As Map)
 	m_isEnabled = Props.GetDefault("Enabled",True)
-	
+	m_ThemeChangeTransition = Props.GetDefault("ThemeChangeTransition","None")
 	m_CheckedBackgroundColor = xui.PaintOrColorToColor(Props.Get("CheckedBackgroundColor"))
 	m_IconColor = xui.PaintOrColorToColor(Props.Get("IconColor"))
 	m_DisabledColor = xui.PaintOrColorToColor(Props.Get("DisabledBackgroundColor"))
@@ -107,6 +195,10 @@ Private Sub ini_props(Props As Map)
 	m_isCheckedAnimated = Props.Get("CheckedAnimated")
 	m_isHaptic = Props.Get("HapticFeedback")
 	m_isChecked = Props.GetDefault("Checked",False)
+	m_isFillUncheckedBackgroundColor = Props.GetDefault("FillUncheckedBackgroundColor",False)
+	m_UncheckedBackgroundColor = xui.PaintOrColorToColor(Props.GetDefault("UncheckedBackgroundColor",xui.Color_ARGB(255,19, 20, 22)))
+	m_UncheckedIconColor = xui.PaintOrColorToColor(Props.GetDefault("UncheckedIconColor",xui.Color_ARGB(0,255,255,255)))
+	m_isRound = Props.GetDefault("Round",False)
 	
 	m_CheckBoxWidthHeight = DipToCurrent(Props.Get("CheckBoxWidthHeight"))
 	m_CheckBox2TextGap = DipToCurrent(Props.GetDefault("CheckBox2TextGap",10dip))
@@ -114,6 +206,7 @@ Private Sub ini_props(Props As Map)
 End Sub
 
 Public Sub Base_Resize (Width As Double, Height As Double)
+	xiv_RefreshImage.SetLayoutAnimated(0,0,0,Width,Height)
 	xlbl_CheckBox.SetLayoutAnimated(0,m_CheckBoxGap,Height/2 - m_CheckBoxWidthHeight/2,m_CheckBoxWidthHeight,m_CheckBoxWidthHeight)
 	xlbl_Text.SetLayoutAnimated(0,m_CheckBoxWidthHeight + m_CheckBox2TextGap + xlbl_CheckBox.Left,0,mBase.Width-m_CheckBoxWidthHeight - m_CheckBox2TextGap - xlbl_CheckBox.Left,mBase.Height)
 	xpnl_ClickPanel.SetLayoutAnimated(0,0,0,Width,Height)
@@ -126,24 +219,25 @@ Public Sub Base_Resize (Width As Double, Height As Double)
 End Sub
 
 Private Sub UpdateStyle
-	Dim clr_background As Int = m_CheckedBackgroundColor	
-	If m_isEnabled = False Then clr_background = m_DisabledColor
-	
-	Dim clr_icon As Int = m_IconColor
-	If m_isEnabled = False Then clr_icon = m_DisabledIconColor
-	
-	If m_isChecked = False Then
-		xlbl_CheckBox.SetColorAndBorder(xui.Color_Transparent,m_BorderWidth,clr_background,m_CornerRadius)
-	Else
-		xlbl_CheckBox.SetColorAndBorder(clr_background,m_BorderWidth,clr_background,m_CornerRadius)
-		xlbl_CheckBox.TextColor = clr_icon
+	Dim BackgroundColor As Int = m_CheckedBackgroundColor
+	Dim IconColor As Int = m_IconColor
+	If m_isEnabled = False Then
+		BackgroundColor = m_DisabledColor
+		IconColor = m_DisabledIconColor
+	Else If m_isChecked = False Then
+		BackgroundColor = m_UncheckedBackgroundColor
+		IconColor = m_UncheckedIconColor
 	End If
+	
+	xlbl_CheckBox.SetColorAndBorder(IIf(m_isFillUncheckedBackgroundColor Or m_isChecked,BackgroundColor,xui.Color_Transparent),m_BorderWidth,BackgroundColor,IIf(m_isRound,xlbl_CheckBox.Height/2, m_CornerRadius))
+	xlbl_CheckBox.TextColor = IconColor
+	
 End Sub
 
 
 Public Sub setChecked(b_checked As Boolean)
 	m_isChecked = b_checked
-	Check(b_checked,m_isCheckedAnimated,True)
+	Check(m_isCheckedAnimated,True)
 End Sub
 
 Public Sub getChecked As Boolean
@@ -154,45 +248,36 @@ Public Sub Refresh
 	Base_Resize(mBase.Width,mBase.Height)
 End Sub
 
-Private Sub Check(b_checked As Boolean,animated As Boolean,WithEvent As Boolean)
+Private Sub Check(isAnimated As Boolean,WithEvent As Boolean)
 	
-	If b_checked Then
-		'xlbl_CheckBox.Color = m_CheckedBackgroundColor
-		'xlbl_CheckBox.TextColor = m_IconColor
-		UpdateStyle
-		xlbl_CheckBox.SetTextAlignment("CENTER","CENTER")
-		xlbl_CheckBox.Text = m_Icon
+	UpdateStyle
+	xlbl_CheckBox.SetTextAlignment("CENTER","CENTER")
+	xlbl_CheckBox.Font = IIf(m_isFontAswesome = False,xui.CreateMaterialIcons(1),xui.CreateFontAwesome(1))
+	Dim size As Float = 2
+	For size = 2 To 500
+		If CheckSize(size) Then Exit
+	Next
+	If size > 10 Then size = size - 5
+		
+	If m_isCheckedAnimated = True And isAnimated = True Then
 		xlbl_CheckBox.Font = IIf(m_isFontAswesome = False,xui.CreateMaterialIcons(1),xui.CreateFontAwesome(1))
-		Dim size As Float = 2
-		For size = 2 To 500
-			If CheckSize(size) Then Exit
-		Next
-		If size > 10 Then size = size - 5
 		
-		If m_isCheckedAnimated = True And animated = True Then
-			xlbl_CheckBox.Font = IIf(m_isFontAswesome = False,xui.CreateMaterialIcons(1),xui.CreateFontAwesome(1))
-		
-			Jump
-			If (m_CornerRadius <> 0 And xui.IsB4i = False) Or m_CornerRadius = 0 Then
-				Sleep(250)
-			End If
-			
-			
-			xlbl_CheckBox.SetTextSizeAnimated(250,size)
-		Else
-			xlbl_CheckBox.Font = IIf(m_isFontAswesome = False,xui.CreateMaterialIcons(size),xui.CreateFontAwesome(size))
+		Jump
+		If (m_CornerRadius <> 0 And xui.IsB4i = False) Or m_CornerRadius = 0 Then
+			Sleep(250)
 		End If
-	
+			
+			
+		xlbl_CheckBox.SetTextSizeAnimated(250,size)
 	Else
-		xlbl_CheckBox.Color = xui.Color_Transparent
-		xlbl_CheckBox.Text = ""
-		Sleep(0)
-		If m_isCheckedAnimated = True And animated = True Then Jump
+		xlbl_CheckBox.Font = IIf(m_isFontAswesome = False,xui.CreateMaterialIcons(size),xui.CreateFontAwesome(size))
 	End If
+	
 	If WithEvent = True And m_isEvent = True Then
 		CheckedChange
 	End If
 End Sub
+
 'https://www.b4x.com/android/forum/threads/iamir_viewanimator.100194/#content
 Private Sub Jump	
 	#If B4I
@@ -205,6 +290,40 @@ Private Sub Jump
 	Sleep(250)
 	xlbl_CheckBox.SetLayoutAnimated(250,m_CheckBoxGap,mBase.Height/2 - m_CheckBoxWidthHeight/2,m_CheckBoxWidthHeight,m_CheckBoxWidthHeight)
 	#End If
+End Sub
+
+#Region Properties
+
+Public Sub setisround(isRound As Boolean)
+	m_isRound = isRound
+End Sub
+
+Public Sub getisRound As Boolean
+	Return m_isRound
+End Sub
+
+Public Sub setUncheckedIconColor(UncheckedIconColor As Int)
+	m_UncheckedIconColor = UncheckedIconColor
+End Sub
+
+Public Sub getUncheckedIconColor As Int
+	Return m_UncheckedIconColor
+End Sub
+
+Public Sub setUncheckedBackgroundColor(UncheckedBackgroundColor As Int)
+	m_UncheckedBackgroundColor = UncheckedBackgroundColor
+End Sub
+
+Public Sub getUncheckedBackgroundColor As Int
+	Return m_UncheckedBackgroundColor
+End Sub
+
+Public Sub setisFillUncheckedBackgroundColor(FillUncheckedBackgroundColor As Boolean)
+	m_isFillUncheckedBackgroundColor = FillUncheckedBackgroundColor
+End Sub
+
+Public Sub getisFillUncheckedBackgroundColor As Boolean
+	Return m_isFillUncheckedBackgroundColor
 End Sub
 
 'Call Refresh if you change this value
@@ -235,7 +354,7 @@ End Sub
 Public Sub SetIcon(icon As String,isfontawesome As Boolean)
 	m_Icon = icon
 	m_isFontAswesome = isfontawesome
-	If m_isChecked = True Then Check(m_isChecked,False,False)
+	If m_isChecked = True Then Check(False,False)
 End Sub
 
 Public Sub setBorderCornerRadius(radius As Int)
@@ -319,6 +438,8 @@ Public Sub setisFontAswesome(FontAwesome As Boolean)
 	m_isFontAswesome = FontAwesome
 End Sub
 
+#End Region
+
 #If B4J
 Private Sub xpnl_ClickPanel_MouseClicked (EventData As MouseEvent)
 	If m_isEnabled = False Then Return
@@ -346,10 +467,10 @@ Private Sub xlbl_CheckBox_Click
 	If m_isHaptic Then XUIViewsUtils.PerformHapticFeedback(mBase)
 	If m_isChecked = True Then
 		m_isChecked = False
-		Check(m_isChecked,m_isCheckedAnimated,True)
+		Check(m_isCheckedAnimated,True)
 	Else
 		m_isChecked = True
-		Check(m_isChecked,m_isCheckedAnimated,True)
+		Check(m_isCheckedAnimated,True)
 	End If
 End Sub
 #End If
@@ -357,6 +478,12 @@ End Sub
 Private Sub CreateLabel(EventName As String) As B4XView
 	Dim tmp_lbl As Label : tmp_lbl.Initialize(EventName)
 	Return tmp_lbl
+End Sub
+
+Private Sub CreateImageView(EventName As String) As B4XView
+	Dim iv As ImageView
+	iv.Initialize(EventName)
+	Return iv
 End Sub
 
 'returns true if the size is too large

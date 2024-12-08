@@ -7,6 +7,6 @@ ModuleBreakpoints2=
 ModuleClosedNodes0=
 ModuleClosedNodes1=
 ModuleClosedNodes2=
-NavigationStack=AS_CheckboxAdvanced,ini_props,77,0,AS_CheckboxAdvanced,Jump,172,3,Visual Designer,frm_main.bjl,-100,6,AS_CheckboxAdvanced,Check,134,0,AS_CheckboxAdvanced,setisFontAswesome,307,0,AS_CheckboxAdvanced,xlbl_CheckBox_MouseClicked,320,0,AS_CheckboxAdvanced,Class_Globals,35,5,AS_CheckboxAdvanced,DesignerCreateView,72,6,AS_CheckboxAdvanced,Base_Resize,109,6,AS_CheckboxAdvanced,xpnl_ClickPanel_MouseClicked,312,0
+NavigationStack=AS_CheckboxAdvanced,setisFontAswesome,422,0,AS_CheckboxAdvanced,getUncheckedIconColor,293,0,AS_CheckboxAdvanced,ini_props,196,0,Visual Designer,frm_main.bjl,-100,2,AS_CheckboxAdvanced,Class_Globals,81,3,AS_CheckboxAdvanced,setTheme,96,4,AS_CheckboxAdvanced,getTheme_Dark,123,2,AS_CheckboxAdvanced,getTheme_Light,139,1,B4XMainPage,Class_Globals,11,0,B4XMainPage,B4XPage_Created,27,6
 SelectedBuild=0
 VisibleModules=2,1
